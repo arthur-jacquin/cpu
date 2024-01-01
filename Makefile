@@ -1,8 +1,8 @@
-.PHONY: default clean doc
+.PHONY: default clean doc out
 
-default: doc
+default: out
 
-asb:
+asb: asb.c
 	cc asb.c -o asb
 
 clean:
