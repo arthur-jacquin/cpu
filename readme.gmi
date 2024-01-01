@@ -34,7 +34,7 @@ The goal: a pipelined CPU with bypassing.
     0011    0.      pop, read, push
     0100    10      jmp
     0101    ..      mov
-    0110    ..      call
+    0110    10      call
     0111    ..      ret
 
 

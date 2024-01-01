@@ -41,8 +41,8 @@ struct label {
     int address, found;
 };
 
-enum mn_type {MOV_TYPE, NOT_TYPE, AND_TYPE, INC_TYPE, POP_TYPE,
-    READ_TYPE, PUSH_TYPE, JMP_TYPE, BEQ_TYPE};
+enum mn_type {NOT_TYPE, AND_TYPE, INC_TYPE, POP_TYPE, READ_TYPE, PUSH_TYPE,
+    JMP_TYPE, BEQ_TYPE, MOV_TYPE, CAL_TYPE, RET_TYPE};
 
 struct pseudo_instruction {
     char mnemonic[5];
@@ -51,10 +51,6 @@ struct pseudo_instruction {
 };
 
 struct pseudo_instruction ISA[] = {
-    // TODO: call, ret
-
-    {"mov", MOV_TYPE, 0b0101, 0,    0},
-
     {"not", NOT_TYPE, 0b0000, 0b00, 0},
     {"and", AND_TYPE, 0b0000, 0b01, 0},
     {"or",  AND_TYPE, 0b0000, 0b10, 0},
@@ -80,6 +76,12 @@ struct pseudo_instruction ISA[] = {
     {"bge", BEQ_TYPE, 0b0100, 0,    0b0010},
     {"blt", BEQ_TYPE, 0b0100, 0,    0b0101},
     {"ble", BEQ_TYPE, 0b0100, 0,    0b0001},
+
+    {"mov", MOV_TYPE, 0b0101, 0,    0},
+
+    {"call",CAL_TYPE, 0b0110, 0,    0},
+
+    {"ret", RET_TYPE, 0b0111, 0,    0},
 
     {""},
 };
@@ -238,10 +240,6 @@ parse_instruction(void)
     res.src2 = 0;
     res.jump_label_index = -1;
     switch (type = pseudo->mn_type) {
-    case MOV_TYPE:
-        PARSE_REG(dst)
-        PARSE_REG_VAL(16, 0b10)
-        break;
     case NOT_TYPE:
         PARSE_REG(dst)
         PARSE_REG(src1)
@@ -270,25 +268,32 @@ parse_instruction(void)
         PARSE_REG_VAL(16, 0b10)
         break;
     case BEQ_TYPE:
-        // perform a substraction, wait for flags
+        // perform a substraction
         res.op = 0b0010;
         res.funct = 0b01;
         PARSE_REG(src1)
         PARSE_REG_VAL(10, 0b01)
         add_instruction(res);
+        // fall-through
     case JMP_TYPE:
+    case CAL_TYPE:
         // perform a jump
         if ((parse_label(label, &start)) == -1)
             die("parsing failed", 1);
         res.fmt = 0b10;
-        res.op = 0b0100;
-        res.dst = (type == BEQ_TYPE) ? pseudo->mask : 0b0000;
+        res.op = pseudo->op;
+        res.dst = pseudo->mask;
         res.jump_label_index = get_label_index(label, 0, 0);
-        add_instruction(res);
+        break;
+    case MOV_TYPE:
+        PARSE_REG(dst)
+        PARSE_REG_VAL(16, 0b10)
+        break;
+    case RET_TYPE:
+        res.fmt = 0b00;
         break;
     }
-    if (type != BEQ_TYPE && type != JMP_TYPE)
-        add_instruction(res);
+    add_instruction(res);
 }
 
 int
