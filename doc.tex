@@ -32,8 +32,10 @@
 
 \pgfmathsetmacro{\mp}{0.1} % minimal spacing between wires
 \pgfmathsetmacro{\ps}{0.2/0.7} % pin spacing
+\pgfmathsetmacro{\namesspacing}{1}
 \pgfmathsetmacro{\padding}{0.5}
 \pgfmathtruncatemacro{\cachedepth}{2}
+\newcommand{\namescolor}{darkgray}
 
 % ROM
 \draw (0, 0)
@@ -47,6 +49,7 @@
 \draw (ROM.bpin 6) ++(\padding, 0)
     node[stage, anchor=bpin 5, num pins=94] (ST1) {}
     node[below] at (ST1.n) {\normalsize 1}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] ROM.n |- ST1.n) {\normalsize INSTRUCTION FETCH}
 ;
 \draw
     (ROM.bpin 3) -| ([shift={(-\ps, 0)}] ROM.bpin 3 |- ST1.bpin 3) node[circ] (index1) {}
@@ -95,6 +98,7 @@
 \draw (DECODER.bpin 94) ++(\padding,0)
     node[stage, anchor=bpin 1, num pins=94] (ST2) {}
     node[below] at (ST2.n) {\normalsize 2}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST1.n)!0.5!(ST2.n)$) {\normalsize DECODE}
 ;
 
 % REGISTER FILE
@@ -118,6 +122,7 @@
 \draw (RF.bpin 14) ++(\padding,0)
     node[stage, anchor=bpin 29, num pins=94] (ST3) {}
     node[below] at (ST3.n) {\normalsize 3}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST2.n)!0.5!(ST3.n)$) {\normalsize REGISTER FETCH}
 ;
 
 % RAM
@@ -241,6 +246,7 @@
 \draw ([shift={(\padding + 2*\ps, 0)}] ALU.brpin 1 |- ST1.bpin 1)
     node[stage, anchor=bpin 1, num pins=94] (ST4) {}
     node[below] at (ST4.n) {\normalsize 4}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST3.n)!0.5!(ST4.n)$) {\normalsize EXECUTE, MEMORY ACCESS}
 ;
 
 % IP
@@ -272,9 +278,18 @@
 \draw (IP.bpin 22) ++(\padding, 0)
     node[stage, anchor=bpin 1, num pins=94] (ST5) {}
     node[below] at (ST5.n) {\normalsize 5}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST4.n)!0.5!(ST5.n)$) {\normalsize FLOW CONTROL};
 ;
 \draw
     (IP.bpin 20) -- (ST5.bpin 92) -- ++(\padding, 0) |- (index2)
 ;
+
+% dashed lines
+\foreach \i in {1,2,...,5} {
+    \draw[thick, dashed, \namescolor]
+        (ST\i.n) -- ++(0, \namesspacing+0.3)
+        (ST\i.s) -- ++(0, -\namesspacing)
+    ;
+};
 \end{circuitikz}
 \end{document}
