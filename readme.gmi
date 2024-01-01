@@ -1,0 +1,54 @@
+# CPU
+
+The goal: a pipelined CPU with bypassing.
+
+1. Design the ISA
+2. Implement an assembler for your ISA
+3. Design the overall CPU structure
+4. Implement each component
+5. Put it together and compile it for the card
+6. Test your toolchain and CPU, show simulation results
+
+
+## Sizes
+
+* RF: 2^4 = 16 registers of 16 bits
+* ROM: 2^12 instructions of 26 bits
+* RAM: 2^12 memory cells of 16 bits
+
+
+## ISA
+
+### Formats
+
+    00: fmt[2] op[4] dest[4] src1[4] funct[2] [6] src2[4]
+    01: fmt[2] op[4] dest[4] src1[4] funct[2] imm[10]
+    10: fmt[2] op[4] dest[4] imm[16]
+
+### Reserved instructions
+
+    op      fmt     description (in ascending order of funct if fmt == 0.)
+    0000    0.      not, and, or, xor
+    0001    0.      rshift, lshift
+    0010    0.      add, sub, mul
+    0011    0.      pop, read, push
+    0100    10      jmp
+    0101    ..      mov
+    0110    ..      call
+    0111    ..      ret
+
+
+## Overall CPU structure
+
+See `doc.tex`, or the compiled result in `doc.pdf` after running `make doc`.
+
+
+## Decoder
+
+TODO: algorigramme, chronogrammes de contrôle associés
+
+
+## Assembler and testing
+
+Run `make asb` to compile the assembler, then run `./asb <filename>` to assemble
+a program. `test.asb` is provided for testing purposes.
