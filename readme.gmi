@@ -29,13 +29,15 @@ The goal: a pipelined CPU with bypassing.
 
     op      fmt     description (in ascending order of funct if fmt == 0.)
     0000    0.      not, and, or, xor
-    0001    0.      rshift, lshift
+    0001    0.      rls, lls
     0010    0.      add, sub, mul
     0011    0.      pop, read, push
     0100    10      jmp
     0101    ..      mov
     0110    10      call
     0111    ..      ret
+
+pseudo-instructions: inc, dec, beq, bne, bgt, bge, blt, ble
 
 
 ## Overall CPU structure

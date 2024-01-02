@@ -257,12 +257,14 @@ parse_instruction(void)
         res.fmt = 0b01;
         break;
     case POP_TYPE:
-        PARSE_REG(dst)
-        res.fmt = 0b00;
-        break;
     case READ_TYPE:
         PARSE_REG(dst)
-        PARSE_REG_VAL(16, 0b10)
+        res.fmt = 0b01;
+        if (type == READ_TYPE) {
+            if ((res.imm = parse_value(&start, 10)) == -1)
+                die("parsing failed", 1);
+        } else
+            res.imm = 0;
         break;
     case PUSH_TYPE:
         PARSE_REG_VAL(16, 0b10)
