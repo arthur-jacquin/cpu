@@ -5,15 +5,14 @@ use ieee.numeric_std.all;
 
 entity Ram is
     port (
-        reset:          in std_logic;
         clock:          in std_logic;
 
         enable:         in std_logic;
-        in_index:       in std_logic_vector(11 downto 0);
-        out_index:      in std_logic_vector(11 downto 0);
-        in:             in std_logic_vector(15 downto 0);
+        write_index:    in std_logic_vector(11 downto 0);
+        read_index:     in std_logic_vector(11 downto 0);
+        write_val:      in std_logic_vector(15 downto 0);
 
-        out:            out std_logic_vector(15 downto 0);
+        read_val:       out std_logic_vector(15 downto 0)
     );
 end Ram;
 
@@ -24,14 +23,12 @@ architecture Ram_arch of Ram is
 
 begin
 
-    process (clock, reset)
-    begin
-        out <= ram(to_integer(unsigned(out_index)));
+    read_val <= ram(to_integer(unsigned(read_index)));
 
-        if rising_edge(clock) then
-            if enable = '1' then
-                ram(to_integer(unsigned(in_index))) <= in;
-            end if;
+    process (clock)
+    begin
+        if rising_edge(clock) and enable = '1' then
+            ram(to_integer(unsigned(write_index))) <= write_val;
         end if;
     end process;
 

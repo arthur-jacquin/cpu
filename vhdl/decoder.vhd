@@ -18,9 +18,9 @@ entity Decoder is
         jump_index:     out std_logic_vector(11 downto 0);
 
         use_reg_imm:    out std_logic;
-        enable_RAM:     out std_logic;
-        in_index_RAM:   out std_logic_vector(11 downto 0);
-        read_index_RAM: out std_logic_vector(11 downto 0);
+        RAM_enable:     out std_logic;
+        RAM_write_index:out std_logic_vector(11 downto 0);
+        RAM_read_index: out std_logic_vector(11 downto 0);
 
         operation:      out std_logic_vector(5 downto 0);
         use_src2:       out std_logic;
@@ -31,66 +31,72 @@ entity Decoder is
 
         valid:          out std_logic;
         dest:           out std_logic_vector(3 downto 0);
-        use_ALU:        out std_logic;
+        use_ALU:        out std_logic
     );
 end Decoder;
 
 architecture Decoder_arch of Decoder is
 
-    signal SP:          std_logic_vector(11 downto 0);  -- stack pointer
-    signal NB_WAIT:     std_logic_vector(2 downto 0);   -- nb of operations to wait
-    signal ins:         std_logic_vector(25 downto 0);  -- operation to decode
+    signal NB_WAIT:     natural range 0 to 5;       -- nb of operations to wait
+    signal SP:          natural range 0 to 4095;    -- stack pointer
+
+    signal ins:         std_logic_vector(25 downto 0);
+    signal op:          std_logic_vector(3 downto 0);
+    signal funct:       std_logic_vector(1 downto 0);
+    signal jump_sig:    std_logic;
+    signal enable_RAM_sig: std_logic;
 
 begin
 
+    -- operation to decode
+    ins <=
+        "10010000000000000000000000" when reset = '1' else      -- jmp 0
+        "00000000000000100000000000" when not(NB_WAIT = 0) else -- or x0, x0, x0
+        instruction;
+
+    -- simple unconditionnal extractions/operations
+    conditions <= ins(19 downto 16);
+    next_index <= std_logic_vector(unsigned(index) + 1);
+    jump_index <= ins(15 downto 0);
+    RAM_write_index <= std_logic_vector(to_unsigned(SP, 12));
+    RAM_read_index <=
+        std_logic_vector(to_unsigned(SP, 12) - unsigned(ins(9 downto 0)) - 1);
+    op <= ins(23 downto 20);
+    funct <= ins(11 downto 10);
+    operation <= op & funct;
+    src1 <= ins(15 downto 12);
+    src2 <= ins(3 downto 0);
+    dest <= ins(19 downto 16);
+    immediate <=
+        "000000" & ins(9 downto 0) when ins(25 downto 24) = "01" else
+        ins(15 downto 0);
+
+    -- control signals
+    jump_sig <= '1' when op = "0100" or op = "0110" or op = "0111" else '0';
+    jump <= jump_sig;
+    use_reg_imm <= '1' when not(op = "0110") else '0';
+    enable_RAM_sig <= '1' when op & funct = "001110" or op = "0110" else '0';
+    RAM_enable <= enable_RAM_sig;
+    use_RAM_index <= '1' when op = "0111" else '0';
+    use_src2 <= '1' when ins(25 downto 24) = "00" else '0';
+    valid <= '1' when op(3 downto 2) = "00" or op = "0101" else '0';
+    use_ALU <= '1' when not(op & funct(1) = "00110") else '0';
+
+    -- intern signals update
     process (clock, reset)
     begin
-        -- calibrate the operation to decode
-        if reset = '1' then
-            SP <= 0;
-            ins <= "10010000000000000000000000"; -- jump to 0
-        elseif NB_WAIT = "000" then
-            ins <= instruction;
-        else
-            ins <= "00000000000000100000000000"; -- or x0, x0, x0
-        end if;
-
-        -- simple unconditionnal extractions/operations (can be moved out of the process ?)
-        conditions <= ins(19 downto 16);
-        next_index <= index + 1;
-        jump_index <= ins(15 downto 0);
-        in_index_RAM <= SP;
-        read_index_RAM <= SP - integer(ins(9 downto 0)) - 1;
-        operation <= ins(23 downto 20) & ins(11 downto 10);
-        src1 <= ins(15 downto 12);
-        src2 <= ins(3 downto 0);
-        dest <= ins(19 downto 16);
-        if (ins(25 downto 24) = "01") then
-            immediate <= resize(ins(9 downto 0), 16);
-        else
-            immediate <= ins(15 downto 0);
-        end if;
-
-        -- control signals
-        jump <= (operation = "0100.." | operation = "0110.." | operation = "0111..");
-        use_reg_imm <= not(operation = "0110..");
-        enable_RAM = (operation = "001110" | operation = "0110..");
-        use_RAM_index <= (operation = "0111..");
-        use_src2 <= (ins(25 downto 24) = "00");
-        valid <= (operation = "00...." | operation = "0101..");
-        use_ALU <= not(operation = "00110.");
-
-        -- intern signals update
         if rising_edge(clock) then
-            if (NB_WAIT \= 0) then
+            if jump_sig = '1' then
+                NB_WAIT <= 5;
+            elsif not(NB_WAIT = 0) then
                 NB_WAIT <= NB_WAIT - 1;
-            elseif (jump = '1') then
-                NB_WAIT <= 5; -- TODO: number of stage
             end if;
 
-            if (enable_RAM = '1') then
+            if reset = '1' then
+                SP <= 0;
+            elsif enable_RAM_sig = '1' then
                 SP <= SP + 1;
-            else if (operation = "001100" | operation = "0111..") then
+            elsif op & funct = "001100" or op = "0111" then
                 SP <= SP - 1;
             end if;
         end if;
