@@ -6,7 +6,7 @@ asb: asb.c
 	cc asb.c -o asb
 
 clean:
-	(while read FILES; do rm -f $$FILES; done) < .gitignore
+	(while read FILES; do rm -rf $$FILES; done) < .gitignore
 
 doc:
 	pdflatex doc
