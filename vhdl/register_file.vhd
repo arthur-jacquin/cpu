@@ -11,7 +11,7 @@ entity Register_File is
         src2:           in std_logic_vector(3 downto 0);
         enable:         in std_logic;
         dest:           in std_logic_vector(3 downto 0);
-        val:            in std_logic_vector(15 downto 0);
+        val_in:         in std_logic_vector(15 downto 0);
 
         val1:           out std_logic_vector(15 downto 0);
         val2:           out std_logic_vector(15 downto 0)
@@ -31,7 +31,7 @@ begin
     process (clock)
     begin
         if rising_edge(clock) and enable = '1' then
-            registers(to_integer(unsigned(dest))) <= val;
+            registers(to_integer(unsigned(dest))) <= val_in;
         end if;
     end process;
 
