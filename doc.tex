@@ -71,9 +71,9 @@
 
     % for MEMORY
     node[left] at (DECODER.bpin 85) {use\_reg\_imm}
-    node[left] at (DECODER.bpin 84) {enable\_RAM}
-    node[left] at (DECODER.bpin 83) {in\_index\_RAM}
-    node[left] at (DECODER.bpin 82) {read\_index\_RAM}
+    node[left] at (DECODER.bpin 84) {RAM\_enable}
+    node[left] at (DECODER.bpin 83) {RAM\_write\_index}
+    node[left] at (DECODER.bpin 82) {RAM\_read\_index}
 
     % for ALU
     node[left] at (DECODER.bpin 77) {operation}
@@ -109,9 +109,9 @@
     node[right] at (RF.bpin 4) {src2}
     node[right] at (RF.bpin 5) {enable}
     node[right] at (RF.bpin 6) {dest}
-    node[right] at (RF.bpin 7) {in}
-    node[left] at (RF.bpin 12) {out1}
-    node[left] at (RF.bpin 11) {out2}
+    node[right] at (RF.bpin 7) {val}
+    node[left] at (RF.bpin 12) {val1}
+    node[left] at (RF.bpin 11) {val2}
 ;
 \draw
     (RF.bpin 3) -| ([shift={(-1*\ps, 0)}] RF.bpin 3 |- DECODER.bpin 72) node[circ] (src1) {} -- (DECODER.bpin 72)
@@ -130,10 +130,10 @@
     node[dipchip, anchor=bpin 1, num pins=14] (RAM) {}
     node[below] at (RAM.n) {\normalsize MEMORY}
     node[right] at (RAM.bpin 3) {enable}
-    node[right] at (RAM.bpin 4) {in\_index}
-    node[right] at (RAM.bpin 5) {out\_index}
-    node[right] at (RAM.bpin 7) {in}
-    node[left] at (RAM.bpin 12) {out}
+    node[right] at (RAM.bpin 4) {write\_index}
+    node[right] at (RAM.bpin 5) {read\_index}
+    node[right] at (RAM.bpin 7) {write\_val}
+    node[left] at (RAM.bpin 12) {read\_val}
 ;
 \draw (RAM.bpin 7) -- ++(-\ps, 0)
     node[mux, anchor=brpin 1] (muxRAM) {};
@@ -151,11 +151,11 @@
         circuitikz/multipoles/dipchip/width=1.3] (SEL1) {}
     node[below] at (SEL1.n) {\normalsize SELECTOR}
     node[right] at (SEL1.bpin 3) {src}
-    node[right] at (SEL1.bpin 4) {in}
-    node[right] at (SEL1.bpin 5) {valid\_cache[\cachedepth]}
-    node[right] at (SEL1.bpin 6) {addr\_cache[\cachedepth]}
-    node[right] at (SEL1.bpin 7) {cache[\cachedepth]}
-    node[left] at (SEL1.bpin 12) {out}
+    node[right] at (SEL1.bpin 4) {RF\_val}
+    node[right] at (SEL1.bpin 5) {cache\_valid}
+    node[right] at (SEL1.bpin 6) {cache\_addr}
+    node[right] at (SEL1.bpin 7) {cache\_val}
+    node[left] at (SEL1.bpin 12) {val}
 ;
 \draw
     (SEL1.bpin 3) -- (src1)
@@ -168,11 +168,11 @@
         circuitikz/multipoles/dipchip/width=1.3] (SEL2) {}
     node[below] at (SEL2.n) {\normalsize SELECTOR}
     node[right] at (SEL2.bpin 3) {src}
-    node[right] at (SEL2.bpin 4) {in}
-    node[right] at (SEL2.bpin 5) {valid\_cache[\cachedepth]}
-    node[right] at (SEL2.bpin 6) {addr\_cache[\cachedepth]}
-    node[right] at (SEL2.bpin 7) {cache[\cachedepth]}
-    node[left] at (SEL2.bpin 12) {out}
+    node[right] at (SEL2.bpin 4) {RF\_val}
+    node[right] at (SEL2.bpin 5) {cache\_valid}
+    node[right] at (SEL2.bpin 6) {cache\_addr}
+    node[right] at (SEL2.bpin 7) {cache\_val}
+    node[left] at (SEL2.bpin 12) {val}
 ;
 \draw
     (SEL2.bpin 3) -- ++(-2*\ps-2*\mp, 0) |- (src2)
@@ -193,24 +193,29 @@
 ;
 
 % CACHE
-\draw (ST3.bpin 55 -| RAM.bpin 1)
+\draw ([shift={(\ps + 2*\mp, 0)}] ST3.bpin 55 -| RAM.bpin 1)
     node[dipchip, anchor=bpin 1, num pins=16] (CACHE) {}
     node[below] at (CACHE.n) {\normalsize CACHE}
-    node[right] at (CACHE.bpin 3) {valid\_in}
-    node[right] at (CACHE.bpin 4) {addr\_in}
-    node[right] at (CACHE.bpin 7) {in}
-    node[left] at (CACHE.bpin 14) {valid\_cache[\cachedepth]}
-    node[left] at (CACHE.bpin 13) {addr\_cache[\cachedepth]}
-    node[left] at (CACHE.bpin 12) {cache[\cachedepth]}
-    node[left] at (CACHE.bpin 11) {valid\_out}
-    node[left] at (CACHE.bpin 10) {addr\_out}
-    node[left] at (CACHE.bpin 9) {out}
+    node[right] at (CACHE.bpin 3) {valid}
+    node[right] at (CACHE.bpin 4) {addr}
+    node[right] at (CACHE.bpin 7) {val}
+    node[left] at (CACHE.bpin 14) {prev\_valid}
+    node[left] at (CACHE.bpin 13) {prev\_addr}
+    node[left] at (CACHE.bpin 12) {prev\_val}
 ;
-\draw (CACHE.bpin 7) -- ++(-\ps, 0)
+\draw (CACHE.bpin 7) ++(-2*\ps -2*\mp, 0)
     node[mux, anchor=brpin 1] (muxCACHE) {};
 \draw
-    (CACHE.bpin 3) -- (DECODER.bpin 53)
-    (CACHE.bpin 4) -- (DECODER.bpin 52)
+    % cache buses
+    (SEL2.bpin 7) -- ++(-\ps-0*\mp, 0) node[circ] (prev_val) {} |- (SEL1.bpin 7)
+    (SEL2.bpin 6) -- ++(-\ps-1*\mp, 0) node[circ] (prev_addr) {} |- (SEL1.bpin 6)
+    (SEL2.bpin 5) -- ++(-\ps-2*\mp, 0) node[circ] (prev_valid) {} |- (SEL1.bpin 5)
+    (CACHE.bpin 12) -| ([shift={(\ps+2*\mp, -0*\mp)}] CACHE.bpin 12 |- DECODER.bpin 57) -| (prev_val)
+    (CACHE.bpin 13) -| ([shift={(\ps+1*\mp, -1*\mp)}] CACHE.bpin 13 |- DECODER.bpin 57) -| (prev_addr)
+    (CACHE.bpin 14) -| ([shift={(\ps+0*\mp, -2*\mp)}] CACHE.bpin 14 |- DECODER.bpin 57) -| (prev_valid)
+
+    (CACHE.bpin 3) -- ++(-\ps-0*\mp, 0) node[circ] (cache_valid) {} -- (DECODER.bpin 53)
+    (CACHE.bpin 4) -- ++(-\ps-1*\mp, 0) node[circ] (cache_addr) {} -- (DECODER.bpin 52)
 
     % multiplexer
     (muxCACHE.btpin 1) |- (DECODER.bpin 51)
@@ -221,23 +226,16 @@
         -| ([shift={(\padding+\ps, 0)}] ST3.bpin 94 |- DECODER.bpin 58)
         -| ([shift={(2*\ps, 0)}] RAM.bpin 12 -| ALU.brpin 1) node[circ] (outRAM) {}
         -- (RAM.bpin 12)
-
-    % cache buses
-    (SEL2.bpin 7) -- ++(-\ps-0*\mp, 0) node[circ] (cache_in) {} |- (SEL1.bpin 7)
-    (SEL2.bpin 6) -- ++(-\ps-1*\mp, 0) node[circ] (cache_addr) {} |- (SEL1.bpin 6)
-    (SEL2.bpin 5) -- ++(-\ps-2*\mp, 0) node[circ] (cache_valid) {} |- (SEL1.bpin 5)
-    (CACHE.bpin 12) -| ([shift={(\ps+2*\mp, -0*\mp)}] CACHE.bpin 12 |- DECODER.bpin 57) -| (cache_in)
-    (CACHE.bpin 13) -| ([shift={(\ps+1*\mp, -1*\mp)}] CACHE.bpin 13 |- DECODER.bpin 57) -| (cache_addr)
-    (CACHE.bpin 14) -| ([shift={(\ps+0*\mp, -2*\mp)}] CACHE.bpin 14 |- DECODER.bpin 57) -| (cache_valid)
+    (muxCACHE.brpin 1) -- ++(\ps, 0) node[circ] (cache_val) {} -- (CACHE.bpin 7)
 
     % return to REGISTER FILE
-    (CACHE.bpin 11) -- ++(\ps+2*\mp, 0)
+    (cache_valid)
         |- ([shift={(\ps+\padding-2*\mp,-\padding-2*\mp)}] ST2.bpin 48)
         |- (RF.bpin 5)
-    (CACHE.bpin 10) -- ++(\ps+1*\mp, 0)
+    (cache_addr)
         |- ([shift={(\ps+\padding-1*\mp,-\padding-1*\mp)}] ST2.bpin 48)
         |- (RF.bpin 6)
-    (CACHE.bpin 9) -- ++(\ps+0*\mp, 0)
+    (cache_val)
         |- ([shift={(\ps+\padding-0*\mp,-\padding-0*\mp)}] ST2.bpin 48)
         |- (RF.bpin 7)
 ;
