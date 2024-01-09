@@ -54,3 +54,9 @@ TODO: algorigramme, chronogrammes de contrôle associés
 
 Run `make asb` to compile the assembler, then run `./asb <filename>` to assemble
 a program. `test.asb` is provided for testing purposes.
+
+
+## Notes
+
+remove clock, reset from most components ?
+ALU: only a sub modify flags
