@@ -3,3 +3,8 @@ out
 *.aux
 *.log
 *.pdf
+db
+incremental_db
+output_files
+*.bak
+*.bsf
