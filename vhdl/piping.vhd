@@ -18,6 +18,44 @@ begin
     output <= b when choose_b = '1' else a;
 end BiMux_arch;
 
+-- index mux
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity IndexBiMux is
+    port (
+        choose_b:       in std_logic;
+        a:              in std_logic_vector(12 - 1 downto 0);
+        b:              in std_logic_vector(12 - 1 downto 0);
+        output:         out std_logic_vector(12 - 1 downto 0)
+    );
+end IndexBiMux;
+architecture IndexBiMux_arch of IndexBiMux is
+begin
+r: entity work.BiMux
+    generic map (size => 12)
+    port map (choose_b => choose_b, a => a, b => b, output => output);
+end IndexBiMux_arch;
+
+-- val mux
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity ValBiMux is
+    port (
+        choose_b:       in std_logic;
+        a:              in std_logic_vector(16 - 1 downto 0);
+        b:              in std_logic_vector(16 - 1 downto 0);
+        output:         out std_logic_vector(16 - 1 downto 0)
+    );
+end ValBiMux;
+architecture ValBiMux_arch of ValBiMux is
+begin
+r: entity work.BiMux
+    generic map (size => 16)
+    port map (choose_b => choose_b, a => a, b => b, output => output);
+end ValBiMux_arch;
+
 -- downsize
 library ieee;
 use ieee.std_logic_1164.all;
@@ -53,7 +91,8 @@ entity Upsize is
 end Upsize;
 architecture Upsize_arch of Upsize is
 begin
-    output <= (others => '0') & input;
+    output(out_size - 1 downto in_size) <= (others => '0');
+    output(in_size - 1 downto 0) <= input;
 end Upsize_arch;
 
 -- control
@@ -136,6 +175,42 @@ r: entity work.Reg
     generic map (size => 12)
     port map (clock => clock, val => val, prev_val => prev_val);
 end IndexReg_arch;
+
+-- instruction
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity InstructionReg is
+    port (
+        clock:          in std_logic;
+        val:            in std_logic_vector(26 - 1 downto 0);
+        prev_val:       out std_logic_vector(26 - 1 downto 0)
+    );
+end InstructionReg;
+architecture InstructionReg_arch of InstructionReg is
+begin
+r: entity work.Reg
+    generic map (size => 26)
+    port map (clock => clock, val => val, prev_val => prev_val);
+end InstructionReg_arch;
+
+-- operation
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity OperationReg is
+    port (
+        clock:          in std_logic;
+        val:            in std_logic_vector(6 - 1 downto 0);
+        prev_val:       out std_logic_vector(6 - 1 downto 0)
+    );
+end OperationReg;
+architecture OperationReg_arch of OperationReg is
+begin
+r: entity work.Reg
+    generic map (size => 6)
+    port map (clock => clock, val => val, prev_val => prev_val);
+end OperationReg_arch;
 
 -- val
 library ieee;
