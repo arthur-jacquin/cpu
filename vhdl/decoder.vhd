@@ -79,7 +79,7 @@ begin
     RAM_enable <= enable_RAM_sig;
     use_RAM_index <= '1' when op = "0111" else '0';
     use_src2 <= '1' when ins(25 downto 24) = "00" else '0';
-    valid <= '1' when op(3 downto 2) = "00" or op = "0101" else '0';
+    valid <= '1' when (op(3 downto 2) = "00" and not(op & funct(1) = "00111")) or op = "0101" else '0';
     use_ALU <= '1' when not(op & funct(1) = "00110") else '0';
 
     -- intern signals update

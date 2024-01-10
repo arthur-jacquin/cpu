@@ -18,14 +18,49 @@ end ALU;
 
 architecture ALU_arch of ALU is
 
+    signal logic_val:   std_logic_vector(15 downto 0);
+    signal shift_val:   std_logic_vector(15 downto 0);
+    signal arith_val:   std_logic_vector(15 downto 0);
+
+    signal result:      std_logic_vector(15 downto 0);
     signal curr_flags:  std_logic_vector(3 downto 0);
     signal prev_flags:  std_logic_vector(3 downto 0);
 
 begin
 
-    -- TODO: manage operation, A, B, val and curr_flags
+    with operation(1 downto 0) select
+        logic_val <=
+            std_logic_vector(not signed(A))             when "00",
+            std_logic_vector(signed(A) and signed(B))   when "01",
+            std_logic_vector(signed(A) or signed(B))    when "10",
+            std_logic_vector(signed(A) xor signed(B))   when others;
 
-    flags <= curr_flags;
+    with operation(1 downto 0) select
+        shift_val <=
+            std_logic_vector(signed(A) sll to_integer(signed(B))) when "00",
+            std_logic_vector(signed(A) srl to_integer(signed(B))) when others;
+
+    with operation(1 downto 0) select
+        arith_val <=
+            std_logic_vector(signed(A) + signed(B)) when "00",
+            std_logic_vector(signed(A) - signed(B)) when "01",
+            std_logic_vector(resize(signed(A) * signed(B), 16)) when others;
+
+    with operation(5 downto 2) select
+        result <=
+            logic_val when "0000",
+            shift_val when "0001",
+            arith_val when "0010",
+            b         when "0101", -- mov
+            (others => '0') when others;
+
+    curr_flags(3) <= '1' when signed(result) = 0 else '0';
+    curr_flags(2) <= '1' when curr_flags(3) = '0' else '0';
+    curr_flags(1) <= '1' when signed(result) >= 0 else '0';
+    curr_flags(0) <= '1' when curr_flags(1) = '0' or curr_flags(3) = '1' else '0';
+
+    val <= result;
+    flags <= curr_flags when operation = "001001" else prev_flags;
 
     process (clock)
     begin
