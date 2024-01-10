@@ -57,7 +57,7 @@ begin
     -- simple unconditionnal extractions/operations
     conditions <= ins(19 downto 16);
     next_index <= std_logic_vector(unsigned(index) + 1);
-    jump_index <= ins(15 downto 0);
+    jump_index <= ins(11 downto 0);
     RAM_write_index <= std_logic_vector(to_unsigned(SP, 12));
     RAM_read_index <=
         std_logic_vector(to_unsigned(SP, 12) - unsigned(ins(9 downto 0)) - 1);
