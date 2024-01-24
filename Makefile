@@ -12,4 +12,4 @@ doc:
 	pdflatex doc
 
 out: asb
-	./asb test.asb | tee out
+	./asb test.asb | tee out | awk '{print "    rom(" NR-1 ") <= \"" $$0 "\";"}'
