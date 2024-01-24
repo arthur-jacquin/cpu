@@ -2,7 +2,7 @@
 
 A pipelined CPU with bypassing, and an assembler for it.
 
-![CPU structure](https://github.com/arthur-jacquin/cpu/blob/main/doc.svg?raw=true)
+![CPU structure](doc.svg)
 
 
 ## CPU structure
