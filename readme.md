@@ -1,13 +1,19 @@
 # CPU
 
-The goal: a pipelined CPU with bypassing.
+A pipelined CPU with bypassing, and an assembler for it.
 
-1. Design the ISA
-2. Implement an assembler for your ISA
-3. Design the overall CPU structure
-4. Implement each component
-5. Put it together and compile it for the card
-6. Test your toolchain and CPU, show simulation results
+![CPU structure](https://github.com/arthur-jacquin/cpu/blob/main/doc.svg?raw=true)
+
+
+## CPU structure
+
+See `doc.pdf` after running `make doc`, or the above `doc.svg`.
+
+
+## Assembler and testing
+
+Run `make asb` to compile the assembler, then run `./asb <filename>` to assemble
+a program. `test.asb` is provided for testing purposes.
 
 
 ## Sizes
@@ -38,25 +44,3 @@ The goal: a pipelined CPU with bypassing.
     0111    ..      ret
 
 pseudo-instructions: inc, dec, beq, bne, bgt, bge, blt, ble
-
-
-## Overall CPU structure
-
-See `doc.tex`, or the compiled result in `doc.pdf` after running `make doc`.
-
-
-## Decoder
-
-TODO: algorigramme, chronogrammes de contrôle associés
-
-
-## Assembler and testing
-
-Run `make asb` to compile the assembler, then run `./asb <filename>` to assemble
-a program. `test.asb` is provided for testing purposes.
-
-
-## Notes
-
-remove clock, reset from most components ?
-ALU: only a sub modify flags
