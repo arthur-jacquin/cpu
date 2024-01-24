@@ -37,7 +37,7 @@ end Decoder;
 
 architecture Decoder_arch of Decoder is
 
-    signal NB_WAIT:     natural range 0 to 5;       -- nb of operations to wait
+    signal NB_WAIT:     natural range 0 to 4;       -- nb of operations to wait
     signal SP:          natural range 0 to 4095;    -- stack pointer
 
     signal ins:         std_logic_vector(25 downto 0);
@@ -87,7 +87,7 @@ begin
     begin
         if rising_edge(clock) then
             if jump_sig = '1' then
-                NB_WAIT <= 5;
+                NB_WAIT <= 4;
             elsif not(NB_WAIT = 0) then
                 NB_WAIT <= NB_WAIT - 1;
             end if;
