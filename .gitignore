@@ -6,5 +6,11 @@ out
 vhdl/db
 vhdl/incremental_db
 vhdl/output_files
+vhdl/simulation
 vhdl/*.bak
 vhdl/*.bsf
+vhdl/*.done
+vhdl/*.map.summary
+vhdl/*.qsf
+vhdl/*.qws
+vhdl/*.rpt
