@@ -11,7 +11,8 @@ afin de les désigner plus simplement. \\
 Pour aller plus loin dans le projet, nous nous sommes essayé à la conception
 d'un assembleur, programme qui transforme un programme composé de mnémoniques
 (sous forme de fichier textuel facile à manipuler) en code binaire
-intelligible pour notre processeur.
+intelligible pour notre processeur. Le code source est disponible en annexe
+\ref{ch:asb}.
 
 \section{Fonctionnement}
 
@@ -27,7 +28,7 @@ Notre assembleur opère en deux phases :
     commentaires, formation de la liste des labels) et prépare la génération de
     code binaire,
 \item un deuxième passage permet de renseigner l'addresse des labels utilisés
-    (\textit{link}). \\
+    (étape de \textit{link}). \\
 \end{enumerate}
 
 Pour éviter des problèmes à l'éxecution, certaines vérifications sont faites
