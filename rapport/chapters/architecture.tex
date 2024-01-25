@@ -1,28 +1,75 @@
-% ## Architecture
-%
-% > 2. La définition architecturale de votre solution. Un schéma clair faisant apparaitre
-% > la ou les parties opératives et contrôle est nécessaire, avec le nom de chacun des
-% > signaux ainsi que leur utilité.
-%
-% Some details are omitted for clarity:
-% * connections to the clock tree and the reset signal
-% * bus sizes
-% * occasionnal bus resize operations
-%
-% dessin, clock, reset omitted, ainsi que des éléments basiques de redimensionnement
-%     générée en LaTeX for more clarity
-% pipeline, hazards
-% differents stages -> no need for synchronous blocks, but different syntax!!
-%     dessiné avec un .qpf puis génération de .vhd, car beaucoup d'éléments
-% ligne à retard
-% le décodeur gère les sauts
-%
-% ## Decoder
-%
-% > 3. L’algorigramme de votre Decoder et les chronogrammes de contrôle associés.
-%
-% decoder.vhd
-%
-% gestion des sauts
-% seul endroits ou est pris en compte le reset, car a priori pas d'informations
-% connu au lancement de la carte
+\chapter{Architecture}
+\label{ch:architecure}
+
+\section{Conséquences du pipeline, gestion des aléas}
+\label{sec:pipeline}
+
+Le choix d'une architecture pipeliné\cite{pipeline} a de nombreuses
+conséquences. Premièrement, le fait d'avoir plusieurs étapes de traitement
+signifie que les différentes parties du processeur n'ont pas besoin d'être
+synchrones (le synchronisme étant géré par les registres tampons séparant les
+étapes), ce qui change la syntaxe et les possibilités en VHDL. Deuxièmement,
+cela crée des \textit{aléas} :
+\begin{itemize}
+\item de contrôle (incertitude de l'instruction a charger lors d'un saut
+    conditionnel),
+\item de données (utilisation d'un registre dont la valeur a été modifié par une
+    instruction précédente depuis sa lecture dans le \textit{register file}). \\
+\end{itemize}
+
+Plusieurs stratégies peuvent être utiliser pour contrer ces aléas. Une méthode
+est d'introduire des pauses pour attendre que la donnée importante (addresse de
+l'instruction à charger, valeur du registre...) soit connue. Pour des raisons de
+simplicité, c'est cette méthode qu'utilise notre processeur pour gérer les aléas
+de contrôle. Lorsqu'une instruction est un saut, le décodeur s'occupe de
+remplacer le traitement des instructions suivantes par celui d'une instruction
+sans effet (ici, \texttt{or x0, x0, x0}), et ce jusqu'à ce que l'adresse après
+le saut soit déterminée. \\
+
+Pour ce qui est des aléas de données, un ouvrage\cite{riscv} propose une méthode
+systématique pour les contrer : le \textit{forwarding}/\textit{bypassing}. Dans
+la même idée, nous avons introduit un cache dans l'étape de calcul mémorisant
+l'adresse et la valeur du dernier registre calculé. Ainsi, si le calcul utilise
+ce registre, la valeur dans le cache est utilisé au lieu de celle provenant du
+\textit{register file}.
+
+\section{Architecture générale}
+
+L'architecture générale est illustrée en figure \ref{fig:architecture}. Les
+barres bleues symbolisent les registres tampons entre les étapes. Pour plus de
+clarté, certains détails sont omis :
+\begin{itemize}
+\item connections à l'arbre d'horloge et au signal de réinitialisation,
+\item tailles des bus,
+\item opérations occasionnelles de redimensionnement des bus.
+\end{itemize}
+
+\begin{landscape}
+\begin{figure}[!h]
+   \centering
+    \input{appendices/architecture.tex}
+    \caption{Architecture générale du processeur}
+    \label{fig:architecture}
+\end{figure}
+\end{landscape}
+
+\section{Implémentation en VHDL}
+
+Comme expliqué en partie \ref{sec:pipeline}, les composants sont majoritairement
+décrits de façon asynchrone. L'élément le plus complexe et le plus intéressant
+est le décodeur, décrit dans \texttt{decoder.vhd} (\ref{decoder}). \\
+
+\lstinputlisting[language=VHDL, caption=\texttt{decoder.vhd}, label=decoder,
+    basicstyle=\ttfamily\footnotesize]{../vhdl/decoder.vhd}
+
+On peut remarquer l'utilisation du signal \texttt{NB\_WAIT}, qui permet gérer
+les sauts. Il détermine en effet le nombre de cycles d'horloge pendant lesquels
+l'instruction lue dans la mémoire sera ignorée et remplacée par une instruction
+sans effet. Ce signal est modifiée par un processus synchrone. \\
+
+Le décodeur est également le seul composant du processeur dans lequel est pris
+en compte le signal de réinitialisation. Lorsque ce signal est actif, le seul
+effet est de traiter le saut inconditionnel vers l'instruction d'addresse
+\texttt{0}. Cela signifie que les programmes ne peuvent pas faire de
+suppositions sur la valeur des registres ou de la pile : ils doivent initialiser
+l'ensemble des données qu'ils utilisent.
