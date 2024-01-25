@@ -1,0 +1,28 @@
+% ## Architecture
+%
+% > 2. La définition architecturale de votre solution. Un schéma clair faisant apparaitre
+% > la ou les parties opératives et contrôle est nécessaire, avec le nom de chacun des
+% > signaux ainsi que leur utilité.
+%
+% Some details are omitted for clarity:
+% * connections to the clock tree and the reset signal
+% * bus sizes
+% * occasionnal bus resize operations
+%
+% dessin, clock, reset omitted, ainsi que des éléments basiques de redimensionnement
+%     générée en LaTeX for more clarity
+% pipeline, hazards
+% differents stages -> no need for synchronous blocks, but different syntax!!
+%     dessiné avec un .qpf puis génération de .vhd, car beaucoup d'éléments
+% ligne à retard
+% le décodeur gère les sauts
+%
+% ## Decoder
+%
+% > 3. L’algorigramme de votre Decoder et les chronogrammes de contrôle associés.
+%
+% decoder.vhd
+%
+% gestion des sauts
+% seul endroits ou est pris en compte le reset, car a priori pas d'informations
+% connu au lancement de la carte

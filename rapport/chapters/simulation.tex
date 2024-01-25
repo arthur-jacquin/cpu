@@ -1,0 +1,17 @@
+% ## Mise en pratique, validité de la solution
+%
+% > montrer les résultats de simulation
+%
+% Le testbench génère une horloge et un signal de réinitialisation actif pendant
+% les premiers cycles d'horloge. Lors de la simulation, il suffit d'observer les
+% valeurs de certains signaux du décodeur et des registres d'intérêt du RF.
+%
+% L'étude de l'évolution de NB_WAIT, index et ins semble confirmer la bonne
+% gestion des sauts.
+%
+% L'éxécution du script stocke 0b10010000 = 144 dans le registre x1. Or
+% fibo(12) = 144: on a bien le résultat attendu !
+%
+% l'ALU non complétèment testé, mais le coeur des opérations et fait automatiquement,
+% c'est surtout la partie contrôle de l'ALU qui est réalisé dans le projet et testé
+% avec le script

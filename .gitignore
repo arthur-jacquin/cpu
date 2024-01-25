@@ -14,3 +14,15 @@ vhdl/*.map.summary
 vhdl/*.qsf
 vhdl/*.qws
 vhdl/*.rpt
+rapport/*.aux
+rapport/*.bbl
+rapport/*.bcf
+rapport/*.blg
+rapport/*.lof
+rapport/*.log
+rapport/*.lol
+rapport/*.lot
+rapport/*.out
+rapport/*.pdf
+rapport/*.run.xml
+rapport/*.toc

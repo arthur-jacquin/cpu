@@ -1,0 +1,139 @@
+\chapter{Conception de l'ISA (Instruction Set Architecture)}
+
+\section{Tailles critiques}
+
+La première étape est de choisir le nombre et la taille des registres. C'est en
+effet crucial pour la conception de l'ISA :
+\begin{itemize}
+\item le nombre de registres détermine le nombre de bits nécessaires pour une
+    adresse de registre,
+\item pour assigner une valeur arbitraire à un registre en une instruction, il
+    faut qu'au moins un format accueille un immédiat de la même taille que les
+    registres. \\
+\end{itemize}
+
+Pour obtenir un CPU raisonnablement capable, nous avons choisi 16 registres de
+16 bits.
+
+\section{Formats}
+
+Alors que la majorité des instructions nécessite de petits opérandes (comme des
+addresses de registres ou des petits immédiats), quelques unes utilisent un
+unique immédiat très grand (de la même taille que les registres). \\
+
+Par souci de compacité et pour garder une taille d'instruction relativement
+faible, l'\textit{opcode} (le code de l'instruction) est encodé en deux parties :
+\begin{itemize}
+\item le champ \texttt{op}, commun à tous les formats,
+\item le champ \texttt{funct}, permettant une plus grande granularité avec les
+    instructions manipulant plusieurs opérandes mais inexistant pour celles ou
+    un immédiat occupe beaucoup de bits.
+\end{itemize}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{cl}
+    \toprule
+    \texttt{fmt} & Champs (nom et taille) \\
+    \midrule
+    \texttt{00} & \texttt{fmt[2] op[4] dest[4] src1[4] funct[2] [6] src2[4]} \\
+    \texttt{01} & \texttt{fmt[2] op[4] dest[4] src1[4] funct[2] imm[10]} \\
+    \texttt{10} & \texttt{fmt[2] op[4] dest[4] imm[16]} \\
+    \bottomrule
+    \end{tabular}
+    \caption{Formats de l'ISA}
+    \label{tab:formats}
+\end{table}
+
+Il y a donc plusieurs catégories d'instructions (table \ref{tab:instructions_types}).
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{cc}
+    \toprule
+    Catégorie & Description \\
+    \midrule
+    A & nécessite \texttt{funct}, \texttt{fmt} = \texttt{00} ou \texttt{01} \\
+    B & nécessite un grand immédiat, \texttt{fmt} = \texttt{10} \\
+    C & autres, \texttt{fmt} = \texttt{00} ou \texttt{10} \\
+    \bottomrule
+    \end{tabular}
+    \caption{Catégories d'instructions}
+    \label{tab:instructions_types}
+\end{table}
+
+\section{Instructions et mnémoniques réservées}
+
+Les codes d'instructions du tableau \ref{tab:opcodes} sont réservés et ne
+pourront plus être modifié. En revanche, l'ajout de fonctionnalités est possible
+avec les codes n'y figurant pas.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ccccl}
+    \toprule
+    \texttt{op} & Catégorie & \texttt{funct} & Mnémonique & Commentaire \\
+    \midrule
+    \texttt{0000} & A & & & Opérations bit à bit \\
+    & & \texttt{00} & \texttt{not} & \\
+    & & \texttt{01} & \texttt{and} & \\
+    & & \texttt{10} & \texttt{or} & \\
+    & & \texttt{11} & \texttt{xor} & \\
+    \texttt{0001} & A & & & Décalages de bits \\
+    & & \texttt{00} & \texttt{rls} & \\
+    & & \texttt{01} & \texttt{lls} & \\
+    \texttt{0010} & A & & & Opérations arithmétiques \\
+    & & \texttt{00} & \texttt{add} & \\
+    & & \texttt{01} & \texttt{sub} & \\
+    & & \texttt{10} & \texttt{mul} & \\
+    \texttt{0011} & A & & & Manipulation de la pile \\
+    & & \texttt{00} & \texttt{pop} & \\
+    & & \texttt{01} & \texttt{read} & \\
+    & & \texttt{10} & \texttt{push} & \\
+    \texttt{0100} & B & & \texttt{jmp} & \\
+    \texttt{0101} & C & & \texttt{mov} & \\
+    \texttt{0110} & B & & \texttt{call} & \\
+    \texttt{0111} & C & & \texttt{ret} & \\
+    \bottomrule
+    \end{tabular}
+    \caption{Codes des instructions}
+    \label{tab:opcodes}
+\end{table}
+
+Certaines \textit{pseudo-instructions} (mnémoniques se rattachant à une
+instruction existante) sont comprises par l'assembleur (voire chapitre
+\ref{ch:assembleur}) :
+\begin{itemize}
+\item \texttt{inc}, \texttt{dec}
+\item \texttt{beq}, \texttt{bne}, \texttt{bgt}, \texttt{bge}, \texttt{blt}, \texttt{ble}
+\end{itemize}
+
+\section{Sauts (in)conditionnels}
+
+Par souci de compacité et pour ne pas occuper inutilement un grand nombre de
+codes d'instructions, les sauts conditionnels et inconditionnels sont encodés
+avec le même code (\texttt{op = 0100}). Plus précisément, tous les sauts sont
+considérés conditionnels, avec une condition tautologique pour les sauts
+"inconditionnels". \\
+
+Les conditions sont encodés avec un masque\cite{bit_mask} dans le champ
+\texttt{dest}. Ce masque peut être vu comme un tableau de drapeaux d'exigences.
+Par exemple, le masque \texttt{0000} n'a aucun drapeau actif, donc aucune
+exigence, et est utilisé pour pour les sauts inconditionnels. En revanche, le
+masque \texttt{0110} exige les comparaisons "non égaux" et "plus grand que", ce
+qui correspond à "strictement plus grand" et utilisé pour le saut conditionnel
+associé à la pseudo-instruction \texttt{bgt} (pour \textit{branch greater
+than}). \\
+
+Grâce à l'utilisation des pseudo-instructions, les masques sont gérés par
+l'assembleur et non l'utilisateur.
+
+\section{\texttt{read}}
+
+L'instruction associée à la mnémonique \texttt{read} (\texttt{op = 0011},
+\texttt{funct = 01}) permet de lire une valeur dans la pile à une profondeur
+quelconque (spécifiée avec \texttt{imm} ou stockée dans le registre désigné par
+\texttt{src2}), sans modifier la pile. C'est utile pour les appels de
+fonctions : on pousse les paramètres dans la pile, et on les lit quand
+nécessaire (lors de la compilation, l'état de la pile et donc la
+profondeur à laquelle se trouve chaque paramètre sont connus).

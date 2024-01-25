@@ -1,0 +1,115 @@
+\chapter{Example chapter}
+\label{ch:example}
+
+\section{Labels and references}
+
+\subsection{Subsection}
+\label{subsec:example}
+
+% TODO: label, ref, pageref for floats, cite
+
+Let's explore how to make references. You can reference a bibliography entry
+(see \cite{einstein}), and even several at once (see \cite{dirac, knuthwebsite}).
+
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+
+Let's explore how to make references. You can reference a bibliography entry
+(see \cite{einstein}), and even several at once (see \cite{dirac, knuthwebsite}).
+
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+It is also possible to reference chapters, sections and subsections, for example
+this paragraph is in chapter \ref{ch:example}, and subsection \ref{subsec:example}.
+
+
+\subsection{Another subsection}
+
+
+\section{Elements}
+
+\subsection{Chapters, sections, subsections}
+
+Maybe I should say a word about this.
+
+\subsection{Figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.25\textwidth]{figures/entity_logo_1.png}
+    \caption{A nice logo}
+    \label{fig:cs_logo}
+\end{figure}
+
+All references to the figure \ref{fig:cs_logo}, appearing on page
+\pageref{fig:cs_logo}, must use the \texttt{ref} and \texttt{pageref} commands.
+
+\subsection{Table}
+
+%\begin{table}[ht]
+%    \centering
+%    \begin{tabular}{lcc}
+%    \toprule
+%    Person & Treatment A & Treatment B \\
+%    \midrule
+%    John Smith & 1 & 2 \\
+%    Jane Doe & -- & 3 \\
+%    Mary Johnson & 4 & 5 \\
+%    \bottomrule
+%    \end{tabular}
+%    \caption{A professional looking table}
+%    \label{tab:treatments}
+%\end{table}
+
+All references to the table \ref{tab:treatments}, appearing on page
+\pageref{tab:treatments}, must use the \texttt{ref} and \texttt{pageref} commands.
+Let's explore how to make references. You can reference a bibliography entry
+(see \cite{einstein}), and even several at once (see \cite{dirac, knuthwebsite}).
+
+Let's explore how to make references. You can reference a bibliography entry
+(see \cite{einstein}), and even several at once (see \cite{dirac, knuthwebsite}).
+Let's explore how to make references. You can reference a bibliography entry
+(see \cite{einstein}), and even several at once (see \cite{dirac, knuthwebsite}).
+
+
+\subsection{Equation}
+
+\begin{equation}
+    e^{i \pi} + 1 = 0
+    \label{eq:identity}
+\end{equation}
+
+The equation \ref{eq:identity} is remarquable.
+
+\subsection{Script}
+
+If you just need some inline code, you can use this command:
+\code{print("Hello World!")}. For a script, you can use this environment:
+
+\begin{lstlisting}[language=Python, caption=A fast exponentation]
+def expo(x, n):
+    if n == 0:
+        return 1
+    elif n == 1:
+        return x
+    elif n % 2:
+        return x * expo(x * x, n // 2)
+    else:
+        return expo(x * x, n // 2)
+\end{lstlisting}
+
+It is also possible to load an external script, in its entirety or just a range
+of lines:
+
+\lstinputlisting[language=Python, caption=Recursive PGCD]{scripts/pgcd.py}
+
+\lstinputlisting[language=Python, firstline=1, lastline=1,
+    caption=PGCD prototype, label=code:essai]{scripts/pgcd.py}
+
+This is code \ref{code:essai}.
