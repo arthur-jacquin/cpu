@@ -1,0 +1,285 @@
+\begin{circuitikz}
+\ctikzset{
+    logic ports=ieee,
+    logic ports/scale=0.7,
+    multipoles/dipchip/width=2,
+    multipoles/dipchip/pin spacing=0.2,
+    no topmark,
+    external pins width=0,
+    hide numbers,
+    font={\ttfamily\tiny},
+    muxdemuxes/fill=lightgray,
+    radius=0.07,
+}
+\tikzset{
+    mux/.style={
+        muxdemux,
+        muxdemux def={Lh=1, Rh=0.8, w=0.2, NT=1, NL=2, NB=0, NR=1},
+    },
+    stage/.style={
+        dipchip,
+        circuitikz/multipoles/dipchip/width=0.2,
+        fill=cyan,
+    },
+}
+
+\pgfmathsetmacro{\mp}{0.1} % minimal spacing between wires
+\pgfmathsetmacro{\ps}{0.2/0.7} % pin spacing
+\pgfmathsetmacro{\namesspacing}{1}
+\pgfmathsetmacro{\padding}{0.5}
+\pgfmathtruncatemacro{\cachedepth}{2}
+\newcommand{\namescolor}{darkgray}
+
+% ROM
+\draw (0, 0)
+    node[dipchip, num pins=6] (ROM) {}
+    node[below] at (ROM.n) {\normalsize ROM}
+    node[right] at (ROM.bpin 3) {index}
+    node[left] at (ROM.bpin 4) {instruction}
+;
+
+% ST1
+\draw (ROM.bpin 6) ++(\padding, 0)
+    node[stage, anchor=bpin 5, num pins=94] (ST1) {}
+    node[below] at (ST1.n) {\normalsize 1}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] ROM.n |- ST1.n) {\normalsize INSTRUCTION FETCH}
+;
+\draw
+    (ROM.bpin 3) -| ([shift={(-\ps, 0)}] ROM.bpin 3 |- ST1.bpin 3) node[circ] (index1) {}
+;
+
+% DECODER
+\draw (ST1.bpin 94) ++(\padding, 0)
+    node[dipchip, anchor=bpin 1, num pins=94] (DECODER) {}
+    node[below] at (DECODER.n) {\normalsize DECODER}
+    node[right] at (DECODER.bpin 3) {index}
+    node[right] at (DECODER.bpin 7) {instruction}
+
+    % for INDEX MANAGER
+    node[left] at (DECODER.bpin 91) {jump}
+    node[left] at (DECODER.bpin 90) {conditions}
+    node[left] at (DECODER.bpin 89) {next\_index}
+    node[left] at (DECODER.bpin 88) {use\_RAM\_index}
+    node[left] at (DECODER.bpin 87) {jump\_index}
+
+    % for MEMORY
+    node[left] at (DECODER.bpin 85) {use\_reg\_imm}
+    node[left] at (DECODER.bpin 84) {RAM\_enable}
+    node[left] at (DECODER.bpin 83) {RAM\_write\_index}
+    node[left] at (DECODER.bpin 82) {RAM\_read\_index}
+
+    % for ALU
+    node[left] at (DECODER.bpin 77) {operation}
+    node[left] at (DECODER.bpin 76) {use\_src2}
+    node[left] at (DECODER.bpin 75) {immediate}
+
+    % for REGISTER FILE, SELECTOR
+    node[left] at (DECODER.bpin 72) {src1}
+    node[left] at (DECODER.bpin 70) {src2}
+
+    % for CACHE
+    node[left] at (DECODER.bpin 53) {valid}
+    node[left] at (DECODER.bpin 52) {dest}
+    node[left] at (DECODER.bpin 51) {use\_ALU}
+;
+\draw
+    (DECODER.bpin 3) -- (index1)
+    (DECODER.bpin 7) -- (ROM.bpin 4)
+;
+
+% ST2
+\draw (DECODER.bpin 94) ++(\padding,0)
+    node[stage, anchor=bpin 1, num pins=94] (ST2) {}
+    node[below] at (ST2.n) {\normalsize 2}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST1.n)!0.5!(ST2.n)$) {\normalsize DECODE}
+;
+
+% REGISTER FILE
+\draw (ST2.bpin 66) ++(\padding + 2*\ps, 0)
+    node[dipchip, anchor=bpin 1, num pins=14] (RF) {}
+    node[below] at (RF.n) {\normalsize REGISTER FILE}
+    node[right] at (RF.bpin 3) {src1}
+    node[right] at (RF.bpin 4) {src2}
+    node[right] at (RF.bpin 5) {enable}
+    node[right] at (RF.bpin 6) {dest}
+    node[right] at (RF.bpin 7) {val}
+    node[left] at (RF.bpin 12) {val1}
+    node[left] at (RF.bpin 11) {val2}
+;
+\draw
+    (RF.bpin 3) -| ([shift={(-1*\ps, 0)}] RF.bpin 3 |- DECODER.bpin 72) node[circ] (src1) {} -- (DECODER.bpin 72)
+    (RF.bpin 4) -| ([shift={(-2*\ps, 0)}] RF.bpin 4 |- DECODER.bpin 70) node[circ] (src2) {} -- (DECODER.bpin 70)
+;
+
+% ST3
+\draw (RF.bpin 14) ++(\padding,0)
+    node[stage, anchor=bpin 29, num pins=94] (ST3) {}
+    node[below] at (ST3.n) {\normalsize 3}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST2.n)!0.5!(ST3.n)$) {\normalsize REGISTER FETCH}
+;
+
+% RAM
+\draw (ST3.bpin 86) ++(\padding+3*\ps+2*\mp, 0)
+    node[dipchip, anchor=bpin 1, num pins=14] (RAM) {}
+    node[below] at (RAM.n) {\normalsize MEMORY}
+    node[right] at (RAM.bpin 3) {enable}
+    node[right] at (RAM.bpin 4) {write\_index}
+    node[right] at (RAM.bpin 5) {read\_index}
+    node[right] at (RAM.bpin 7) {write\_val}
+    node[left] at (RAM.bpin 12) {read\_val}
+;
+\draw (RAM.bpin 7) -- ++(-\ps, 0)
+    node[mux, anchor=brpin 1] (muxRAM) {};
+\draw
+    (RAM.bpin 3) -- (DECODER.bpin 84)
+    (RAM.bpin 4) -- (DECODER.bpin 83)
+    (RAM.bpin 5) -- (DECODER.bpin 82)
+    (muxRAM.btpin 1) |- (DECODER.bpin 85)
+    (muxRAM.blpin 1) -| ([shift={(-\ps, 0)}] muxRAM.blpin 1 |- DECODER.bpin 89) node[circ] (nextindex) {} -- (DECODER.bpin 89)
+;
+
+% SEL1
+\draw (ST3.bpin 74 -| RAM.bpin 1)
+    node[dipchip, anchor=bpin 1, num pins=14,
+        circuitikz/multipoles/dipchip/width=1.3] (SEL1) {}
+    node[below] at (SEL1.n) {\normalsize SELECTOR}
+    node[right] at (SEL1.bpin 3) {src}
+    node[right] at (SEL1.bpin 4) {RF\_val}
+    node[right] at (SEL1.bpin 5) {cache\_valid}
+    node[right] at (SEL1.bpin 6) {cache\_addr}
+    node[right] at (SEL1.bpin 7) {cache\_val}
+    node[left] at (SEL1.bpin 12) {val}
+;
+\draw
+    (SEL1.bpin 3) -- (src1)
+    (SEL1.bpin 4) -- ++(-3*\ps-2*\mp, 0) |- (RF.bpin 12)
+;
+
+% SEL2
+\draw (ST3.bpin 66 -| SEL1.bpin 1)
+    node[dipchip, anchor=bpin 1, num pins=14,
+        circuitikz/multipoles/dipchip/width=1.3] (SEL2) {}
+    node[below] at (SEL2.n) {\normalsize SELECTOR}
+    node[right] at (SEL2.bpin 3) {src}
+    node[right] at (SEL2.bpin 4) {RF\_val}
+    node[right] at (SEL2.bpin 5) {cache\_valid}
+    node[right] at (SEL2.bpin 6) {cache\_addr}
+    node[right] at (SEL2.bpin 7) {cache\_val}
+    node[left] at (SEL2.bpin 12) {val}
+;
+\draw
+    (SEL2.bpin 3) -- ++(-2*\ps-2*\mp, 0) |- (src2)
+    (SEL2.bpin 4) -- (RF.bpin 11)
+;
+
+% ALU
+\draw (SEL1.bpin 12) -- ++(4*\ps + 0.2, 0)
+    node[ALU, anchor=blpin 1] (ALU) {\rotatebox{90}{\normalsize ALU}};
+\draw (ALU.blpin 2) -- ++(-\ps, 0) node[circ] (src_imm) {} -- ++(-\ps, 0)
+    node[mux, anchor=brpin 1] (muxALU) {};
+\draw
+    (src_imm) |- ([shift={(-\ps, \ps)}] muxRAM.blpin 2 |- DECODER.bpin 77) |- (muxRAM.blpin 2)
+    (ALU.btpin 1) |- (DECODER.bpin 77)
+    (muxALU.btpin 1) |- (DECODER.bpin 76)
+    (muxALU.blpin 1) -- ++(-\ps, 0) |- (DECODER.bpin 75)
+    (muxALU.blpin 2) -- ++(-\ps, 0) |- (SEL2.bpin 12)
+;
+
+% CACHE
+\draw ([shift={(\ps + 2*\mp, 0)}] ST3.bpin 55 -| RAM.bpin 1)
+    node[dipchip, anchor=bpin 1, num pins=16] (CACHE) {}
+    node[below] at (CACHE.n) {\normalsize CACHE}
+    node[right] at (CACHE.bpin 3) {valid}
+    node[right] at (CACHE.bpin 4) {addr}
+    node[right] at (CACHE.bpin 7) {val}
+    node[left] at (CACHE.bpin 14) {prev\_valid}
+    node[left] at (CACHE.bpin 13) {prev\_addr}
+    node[left] at (CACHE.bpin 12) {prev\_val}
+;
+\draw (CACHE.bpin 7) ++(-2*\ps -2*\mp, 0)
+    node[mux, anchor=brpin 1] (muxCACHE) {};
+\draw
+    % cache buses
+    (SEL2.bpin 7) -- ++(-\ps-0*\mp, 0) node[circ] (prev_val) {} |- (SEL1.bpin 7)
+    (SEL2.bpin 6) -- ++(-\ps-1*\mp, 0) node[circ] (prev_addr) {} |- (SEL1.bpin 6)
+    (SEL2.bpin 5) -- ++(-\ps-2*\mp, 0) node[circ] (prev_valid) {} |- (SEL1.bpin 5)
+    (CACHE.bpin 12) -| ([shift={(\ps+2*\mp, -0*\mp)}] CACHE.bpin 12 |- DECODER.bpin 57) -| (prev_val)
+    (CACHE.bpin 13) -| ([shift={(\ps+1*\mp, -1*\mp)}] CACHE.bpin 13 |- DECODER.bpin 57) -| (prev_addr)
+    (CACHE.bpin 14) -| ([shift={(\ps+0*\mp, -2*\mp)}] CACHE.bpin 14 |- DECODER.bpin 57) -| (prev_valid)
+
+    (CACHE.bpin 3) -- ++(-\ps-0*\mp, 0) node[circ] (cache_valid) {} -- (DECODER.bpin 53)
+    (CACHE.bpin 4) -- ++(-\ps-1*\mp, 0) node[circ] (cache_addr) {} -- (DECODER.bpin 52)
+
+    % multiplexer
+    (muxCACHE.btpin 1) |- (DECODER.bpin 51)
+    (muxCACHE.blpin 2)
+        -| ([shift={(\padding, 0)}] ST3.bpin 94 |- DECODER.bpin 59)
+        -| ([shift={(\ps, 0)}] ALU.brpin 1) -- (ALU.brpin 1)
+    (muxCACHE.blpin 1)
+        -| ([shift={(\padding+\ps, 0)}] ST3.bpin 94 |- DECODER.bpin 58)
+        -| ([shift={(2*\ps, 0)}] RAM.bpin 12 -| ALU.brpin 1) node[circ] (outRAM) {}
+        -- (RAM.bpin 12)
+    (muxCACHE.brpin 1) -- ++(\ps, 0) node[circ] (cache_val) {} -- (CACHE.bpin 7)
+
+    % return to REGISTER FILE
+    (cache_valid)
+        |- ([shift={(\ps+\padding-2*\mp,-\padding-2*\mp)}] ST2.bpin 48)
+        |- (RF.bpin 5)
+    (cache_addr)
+        |- ([shift={(\ps+\padding-1*\mp,-\padding-1*\mp)}] ST2.bpin 48)
+        |- (RF.bpin 6)
+    (cache_val)
+        |- ([shift={(\ps+\padding-0*\mp,-\padding-0*\mp)}] ST2.bpin 48)
+        |- (RF.bpin 7)
+;
+
+% ST4
+\draw ([shift={(\padding + 2*\ps, 0)}] ALU.brpin 1 |- ST1.bpin 1)
+    node[stage, anchor=bpin 1, num pins=94] (ST4) {}
+    node[below] at (ST4.n) {\normalsize 4}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST3.n)!0.5!(ST4.n)$) {\normalsize EXECUTE, MEMORY ACCESS}
+;
+
+% IP
+\draw ([shift={(\padding+\ps, 0)}] ST4.bpin 86)
+    node[mux, anchor=w] (muxIP) {};
+\draw (muxIP.brpin 1) -- ++(\ps, 0)
+    node[dipchip, anchor=bpin 9, num pins=22] (IP) {}
+    node[below] at (IP.n) {\normalsize INDEX MANAGER}
+    node[right] at (IP.bpin 3) {last\_index}
+    node[right] at (IP.bpin 4) {jump}
+    node[right] at (IP.bpin 5) {conditions}
+    node[right] at (IP.bpin 6) {fallback\_index}
+    node[right] at (IP.bpin 9) {jump\_index}
+    node[right] at (IP.bpin 11) {flags}
+    node[left] at (IP.bpin 20) {index}
+;
+\draw
+    (muxIP.btpin 1) |- (DECODER.bpin 88)
+    (muxIP.blpin 1) -- ++(-\ps, 0) |- (DECODER.bpin 87)
+    (muxIP.blpin 2) -- ++(-\ps, 0) |- (outRAM)
+    (IP.bpin 3) -| ++(-\ps, 2*\ps + \padding) node[circ] (index2) {} -| (index1)
+    (IP.bpin 4) -- (DECODER.bpin 91)
+    (IP.bpin 5) -- (DECODER.bpin 90)
+    (IP.bpin 6) -- (DECODER.bpin 89)
+    (IP.bpin 11) -- ++(-\ps, 0) |- (ALU.bbpin 2)
+;
+
+% ST5
+\draw (IP.bpin 22) ++(\padding, 0)
+    node[stage, anchor=bpin 1, num pins=94] (ST5) {}
+    node[below] at (ST5.n) {\normalsize 5}
+    node[\namescolor] at ([shift={(0, \namesspacing)}] $(ST4.n)!0.5!(ST5.n)$) {\normalsize FLOW CONTROL};
+;
+\draw
+    (IP.bpin 20) -- (ST5.bpin 92) -- ++(\padding, 0) |- (index2)
+;
+
+% dashed lines
+\foreach \i in {1,2,...,5} {
+    \draw[thick, dashed, \namescolor]
+        (ST\i.n) -- ++(0, \namesspacing+0.3)
+        (ST\i.s) -- ++(0, -\namesspacing)
+    ;
+};
+\end{circuitikz}
