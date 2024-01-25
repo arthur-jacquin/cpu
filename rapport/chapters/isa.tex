@@ -1,9 +1,10 @@
 \chapter{Conception de l'ISA (Instruction Set Architecture)}
+\label{ch:isa}
 
 \section{Tailles critiques}
 
 La première étape est de choisir le nombre et la taille des registres. C'est en
-effet crucial pour la conception de l'ISA :
+effet un facteur important pour la conception de l'ISA :
 \begin{itemize}
 \item le nombre de registres détermine le nombre de bits nécessaires pour une
     adresse de registre,
@@ -121,9 +122,9 @@ Les conditions sont encodés avec un masque\cite{bit_mask} dans le champ
 Par exemple, le masque \texttt{0000} n'a aucun drapeau actif, donc aucune
 exigence, et est utilisé pour pour les sauts inconditionnels. En revanche, le
 masque \texttt{0110} exige les comparaisons "non égaux" et "plus grand que", ce
-qui correspond à "strictement plus grand" et utilisé pour le saut conditionnel
-associé à la pseudo-instruction \texttt{bgt} (pour \textit{branch greater
-than}). \\
+qui correspond à "strictement plus grand" et est utilisé pour le saut
+conditionnel associé à la pseudo-instruction \texttt{bgt} (pour \textit{branch
+greater than}). \\
 
 Grâce à l'utilisation des pseudo-instructions, les masques sont gérés par
 l'assembleur et non l'utilisateur.

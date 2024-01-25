@@ -1,20 +1,70 @@
-% ## Assembleur
-%
+\chapter{Assembleur}
+\label{ch:assembleur}
+
+\section{Motivation}
+
+Le code binaire, c'est-à-dire des suites d'instructions encodé comme précisé
+dans le chapitre \ref{ch:isa}, est très peu lisible et manipulable tel quel.
+C'est pour cette raison que des mnémoniques sont associées à chaque instruction,
+afin de les désigner plus simplement. \\
+
+Pour aller plus loin dans le projet, nous nous sommes essayé à la conception
+d'un assembleur, programme qui transforme un programme composé de mnémoniques
+(sous forme de fichier textuel facile à manipuler) en code binaire
+intelligible pour notre processeur.
+
+\section{Fonctionnement}
+
+Pour des raisons de simplicité, l'assembleur est plutôt simple, et certaines
+hypothèses ont été faites (fichier ASCII uniquement, longueur maximale de
+ligne, immédiats positifs...). La syntaxe choisie imite fortement celles
+d'autres langages assembleurs. \\
+
+Notre assembleur opère en deux phases :
+\begin{enumerate}
+\item un premier parcours du programme réalise une analyse syntaxique
+    (reconnaissance des mnémoniques et des arguments, ignorance des
+    commentaires, formation de la liste des labels) et prépare la génération de
+    code binaire,
+\item un deuxième passage permet de renseigner l'addresse des labels utilisés
+    (\textit{link}). \\
+\end{enumerate}
+
+Pour éviter des problèmes à l'éxecution, certaines vérifications sont faites
+par l'assembleur :
+\begin{itemize}
+\item validité de la syntaxe,
+\item existence et unicité de chaque label utilisé,
+\item taille et positivité des immédiats.
+\end{itemize}
+En cas d'échec, des messages d'erreurs facilite le déboguage du programme.
+
+\section{Exemple de programme}
+
+\lstinputlisting[caption=\texttt{fibo.asb}, label=fibo]{../test.asb}
+
+Pour tester le processeur, on utilise le programme \ref{fibo} qui calcule
+$F_{12}$ (le treizième terme de la suite de Fibonacci\cite{fibo}), car il permet
+d'utiliser plusieurs fonctionnalités :
+\begin{itemize}
+\item copie de valeurs entre plusieurs registres,
+\item quelques opérations arithmétiques,
+\item utilisation d'immédiats et de registres pour les opérandes,
+\item sauts conditionnels et inconditionnels. \\
+\end{itemize}
+
+Pour assembler ce programme, il faut compiler l'assembleur (\texttt{asb.c}) puis
+exécuter l'assembleur en spécifiant le nom du programme à assembler (commandes
+\ref{assemble}).
+
+\begin{lstlisting}[caption=Assemblage de \texttt{fibo.asb}, label=assemble]
+cc -o asb asb.c
+./asb fibo.asb > fibo.out
+\end{lstlisting}
+
+Le résultat est ici enregistré dans \texttt{fibo.out} (\ref{out}).
+
+\lstinputlisting[caption=\texttt{fibo.out}, label=out]{../out}
+
 % > 4. L’écriture d’un code utilisant votre ISA permettant de mettre en lumière les
 % > capacités de votre processeur
-%
-% Run `make asb` to compile the assembler, then run `./asb <filename>` to assemble
-% a program. `test.asb` is provided for testing purposes.
-%
-% présentation de asb.c, écrit en C
-%     maximum of error checking, clean error messages (donner des exemples)
-%     gestion des labels
-%     1 pass for instruction generation
-%     1 pass for linking
-% pseudo-instructions
-% présentation de fibo, le .asb et le binaire généré
-%     copie de valeurs entre plusieurs registres
-%     quelques opérations arithmétiques
-%     alternance d'utilisation d'immédiat et de registres
-%     sauts conditionnels et inconditionnels
-% de façon classique, résultat de la routine stocké dans x1
