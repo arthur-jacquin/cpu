@@ -5,8 +5,8 @@
 
 Le code binaire, c'est-à-dire des suites d'instructions encodé comme précisé
 dans le chapitre \ref{ch:isa}, est très peu lisible et manipulable tel quel.
-C'est pour cette raison que des mnémoniques sont associées à chaque instruction,
-afin de les désigner plus simplement. \\
+C'est pour faciliter l'écriture et la lecture de programme par l'humain que des
+mnémoniques sont associées à chaque instruction. \\
 
 Pour aller plus loin dans le projet, nous nous sommes essayés à la conception
 d'un assembleur, programme qui transforme un programme composé de mnémoniques
@@ -67,6 +67,3 @@ cc -o asb asb.c
 Le résultat est ici enregistré dans \texttt{fibo.out} (\ref{out}).
 
 \lstinputlisting[caption=\texttt{fibo.out}, label=out]{../out}
-
-% > 4. L’écriture d’un code utilisant votre ISA permettant de mettre en lumière les
-% > capacités de votre processeur

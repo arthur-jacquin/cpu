@@ -3,18 +3,19 @@
 
 \section{Testbench}
 
-Le testbench (\ref{testbench}) génère une horloge et un signal de
+Le \textit{testbench} (\ref{testbench}) génère une horloge et un signal de
 réinitialisation actif pendant les premiers cycles d'horloge.
 
 \lstinputlisting[language=VHDL, caption=\texttt{testbench.vhd}, label=testbench,
     basicstyle=\ttfamily\footnotesize]{../vhdl/testbench.vhd}
 
-\section{Test du processeur}
+\section{Tests du processeur}
 
 Pour tester le processeur, on peut s'assurer que l'exécution de certains
 programmes donne bien les résultats attendus : après avoir simulé le
 fonctionnement du processeur à l'aide du testbench, on étudie les valeurs de
-certains signaux et registres d'intérêt. \\
+certains signaux et registres d'intérêt. Le logiciel de simulation utilisé ici
+est ModelSim. \\
 
 \begin{figure}[h]
     \centering

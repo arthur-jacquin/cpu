@@ -63,7 +63,7 @@ est le décodeur, décrit dans \texttt{decoder.vhd} (\ref{decoder}). \\
 \lstinputlisting[language=VHDL, caption=\texttt{decoder.vhd}, label=decoder,
     basicstyle=\ttfamily\footnotesize]{../vhdl/decoder.vhd}
 
-On peut remarquer l'utilisation du signal \texttt{NB\_WAIT}, qui permet gérer
+On peut remarquer l'utilisation du signal \texttt{NB\_WAIT}, qui permet de gérer
 les sauts. Il détermine en effet le nombre de cycles d'horloge pendant lesquels
 l'instruction lue dans la mémoire sera ignorée et remplacée par une instruction
 sans effet. Ce signal est modifié par un processus synchrone. \\
