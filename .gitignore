@@ -2,7 +2,12 @@ asb
 out
 *.aux
 *.log
+*.nav
+*.out
 *.pdf
+*.snm
+*.toc
+*.vrb
 vhdl/db
 vhdl/incremental_db
 vhdl/output_files

@@ -11,5 +11,8 @@ clean:
 doc:
 	pdflatex doc
 
+slideshow:
+	pdflatex slideshow
+
 out: asb
 	./asb test.asb | tee out | awk '{print "    rom(" NR-1 ") <= \"" $$0 "\";"}'
