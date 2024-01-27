@@ -8,7 +8,7 @@ dans le chapitre \ref{ch:isa}, est très peu lisible et manipulable tel quel.
 C'est pour cette raison que des mnémoniques sont associées à chaque instruction,
 afin de les désigner plus simplement. \\
 
-Pour aller plus loin dans le projet, nous nous sommes essayé à la conception
+Pour aller plus loin dans le projet, nous nous sommes essayés à la conception
 d'un assembleur, programme qui transforme un programme composé de mnémoniques
 (sous forme de fichier textuel facile à manipuler) en code binaire
 intelligible pour notre processeur. Le code source est disponible en annexe
@@ -27,7 +27,7 @@ Notre assembleur opère en deux phases :
     (reconnaissance des mnémoniques et des arguments, ignorance des
     commentaires, formation de la liste des labels) et prépare la génération de
     code binaire,
-\item un deuxième passage permet de renseigner l'addresse des labels utilisés
+\item un deuxième passage permet de renseigner l'adresse des labels utilisés
     (étape de \textit{link}). \\
 \end{enumerate}
 
@@ -38,7 +38,8 @@ par l'assembleur :
 \item existence et unicité de chaque label utilisé,
 \item taille et positivité des immédiats.
 \end{itemize}
-En cas d'échec, des messages d'erreurs facilite le déboguage du programme.
+En cas d'échec, des messages d'erreur incluant le numéro de la ligne
+problématique facilitent le déboguage du programme.
 
 \section{Exemple de programme}
 

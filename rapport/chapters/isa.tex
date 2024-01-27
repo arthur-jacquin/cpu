@@ -27,7 +27,7 @@ faible, l'\textit{opcode} (le code de l'instruction) est encodé en deux parties
 \begin{itemize}
 \item le champ \texttt{op}, commun à tous les formats,
 \item le champ \texttt{funct}, permettant une plus grande granularité avec les
-    instructions manipulant plusieurs opérandes mais inexistant pour celles ou
+    instructions manipulant plusieurs opérandes mais inexistant pour celles où
     un immédiat occupe beaucoup de bits.
 \end{itemize}
 
@@ -65,9 +65,10 @@ Il y a donc plusieurs catégories d'instructions (table \ref{tab:instructions_ty
 
 \section{Instructions et mnémoniques réservées}
 
-Les codes d'instructions du tableau \ref{tab:opcodes} sont réservés et ne
-pourront plus être modifié. En revanche, l'ajout de fonctionnalités est possible
-avec les codes n'y figurant pas.
+Le jeu d'instructions conçu est très générique, et extensible. Les codes
+d'instructions du tableau \ref{tab:opcodes} sont réservés et ne pourront plus
+être modifiés, mais l'ajout de fonctionnalités est possible avec les codes n'y
+figurant pas.
 
 \begin{table}[ht]
     \centering

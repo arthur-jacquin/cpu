@@ -4,21 +4,22 @@
 \section{Conséquences du pipeline, gestion des aléas}
 \label{sec:pipeline}
 
-Le choix d'une architecture pipeliné\cite{pipeline} a de nombreuses
+Le choix d'une architecture pipelinée\cite{pipeline} a de nombreuses
 conséquences. Premièrement, le fait d'avoir plusieurs étapes de traitement
 signifie que les différentes parties du processeur n'ont pas besoin d'être
 synchrones (le synchronisme étant géré par les registres tampons séparant les
 étapes), ce qui change la syntaxe et les possibilités en VHDL. Deuxièmement,
 cela crée des \textit{aléas} :
 \begin{itemize}
-\item de contrôle (incertitude de l'instruction a charger lors d'un saut
+\item de contrôle (incertitude de l'instruction à charger lors d'un saut
     conditionnel),
-\item de données (utilisation d'un registre dont la valeur a été modifié par une
-    instruction précédente depuis sa lecture dans le \textit{register file}). \\
+\item de données (utilisation d'un registre dont la valeur a été modifiée par
+    une instruction précédente depuis sa lecture dans le
+    \textit{register file}). \\
 \end{itemize}
 
-Plusieurs stratégies peuvent être utiliser pour contrer ces aléas. Une méthode
-est d'introduire des pauses pour attendre que la donnée importante (addresse de
+Plusieurs stratégies peuvent être utilisées pour contrer ces aléas. Une méthode
+est d'introduire des pauses pour attendre que la donnée importante (adresse de
 l'instruction à charger, valeur du registre...) soit connue. Pour des raisons de
 simplicité, c'est cette méthode qu'utilise notre processeur pour gérer les aléas
 de contrôle. Lorsqu'une instruction est un saut, le décodeur s'occupe de
@@ -30,7 +31,7 @@ Pour ce qui est des aléas de données, un ouvrage\cite{riscv} propose une méth
 systématique pour les contrer : le \textit{forwarding}/\textit{bypassing}. Dans
 la même idée, nous avons introduit un cache dans l'étape de calcul mémorisant
 l'adresse et la valeur du dernier registre calculé. Ainsi, si le calcul utilise
-ce registre, la valeur dans le cache est utilisé au lieu de celle provenant du
+ce registre, la valeur dans le cache est utilisée au lieu de celle provenant du
 \textit{register file}.
 
 \section{Architecture générale}
@@ -46,7 +47,7 @@ clarté, certains détails sont omis :
 
 \begin{landscape}
 \begin{figure}[!h]
-   \centering
+    \centering
     \input{appendices/architecture.tex}
     \caption{Architecture générale du processeur}
     \label{fig:architecture}
@@ -65,7 +66,7 @@ est le décodeur, décrit dans \texttt{decoder.vhd} (\ref{decoder}). \\
 On peut remarquer l'utilisation du signal \texttt{NB\_WAIT}, qui permet gérer
 les sauts. Il détermine en effet le nombre de cycles d'horloge pendant lesquels
 l'instruction lue dans la mémoire sera ignorée et remplacée par une instruction
-sans effet. Ce signal est modifiée par un processus synchrone. \\
+sans effet. Ce signal est modifié par un processus synchrone. \\
 
 Le décodeur est également le seul composant du processeur dans lequel est pris
 en compte le signal de réinitialisation. Lorsque ce signal est actif, le seul
